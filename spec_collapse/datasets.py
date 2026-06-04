@@ -8,13 +8,20 @@ within-study variance.
 
 DATASETS = {
     "bcg": {
+        # Canonical metafor/metadat dat.bcg, derived from the published Colditz
+        # (1994) 2x2 counts. Engine reproduces metafor's published RE result on
+        # these exactly: REML tau^2 = 0.3132, estimate = -0.7145 (see tests).
+        # NB: MultiverseMA shipped a corrupted version of this dataset (9/13 rows
+        # wrong); these authoritative values replace it.
         "name": "BCG Vaccine & Tuberculosis",
-        "source": "Colditz et al. (1994), Berkey et al. (1995)",
+        "source": "Colditz et al. (1994); metadat dat.bcg",
         "measure": "log-RR",
-        "yi": [-0.8893, -1.5854, -1.3481, -1.4416, -0.2175, -0.7861, 0.0120,
-               0.5710, -0.4543, -1.6302, -0.0173, -0.2210, -0.7526],
-        "vi": [0.3256, 0.1946, 0.0154, 0.0200, 0.0512, 0.0628, 0.0368,
-               0.0636, 0.0356, 0.2252, 0.0312, 0.0198, 0.0393],
+        "yi": [-0.889311, -1.585389, -1.348073, -1.441551, -0.217547, -0.786116,
+               -1.620898, 0.011952, -0.469418, -1.371345, -0.339359, 0.445913,
+               -0.017314],
+        "vi": [0.325585, 0.194581, 0.415368, 0.02001, 0.05121, 0.006906,
+               0.223017, 0.003962, 0.056434, 0.073025, 0.012412, 0.532506,
+               0.071405],
     },
     "aspirin": {
         "name": "Aspirin & Stroke Prevention",

@@ -1,17 +1,12 @@
 """Validation tests for the spec-collapse engine and aggregators.
 
-tau^2 references are the VERIFIED values on MultiverseMA's *actually-shipped* BCG
-numbers (spec_collapse/datasets.py), confirmed two independent ways:
-  REML 0.3936 via fixed-point iteration == 0.3936 via direct REML-likelihood
-  optimization (scipy minimize_scalar).  DL 0.4047 via the closed-form formula.
-
-NB these differ from the commonly-quoted metafor dat.bcg figures (REML ~0.31,
-estimate ~-0.71). MultiverseMA's shipped BCG vi could not be reconciled with a
-from-2x2-counts reconstruction, but that reconstruction is itself unverified
-(no R/metafor in this environment), so we make NO claim here about which is
-canonical -- we only assert the engine reproduces the standard formulas on the
-numbers it is given, confirmed two independent ways. Whether MV's data matches
-dat.bcg is deferred to an authoritative-source check.
+The BCG dataset (spec_collapse/datasets.py) is now the canonical metafor/metadat
+dat.bcg, derived from the published Colditz (1994) 2x2 counts. This gives a hard
+EXTERNAL reference: metafor's documented random-effects result on dat.bcg is
+REML tau^2 = 0.3132 and pooled log-RR estimate = -0.7145; the DL estimate is
+0.3088. The engine must reproduce these. (MultiverseMA previously shipped a
+corrupted dat.bcg -- 9/13 rows wrong -- which is why its pooled estimate matched
+no textbook; that has been corrected.)
 """
 import math
 import os
@@ -30,15 +25,16 @@ from spec_collapse.engine import tau2_dl, tau2_pm, tau2_reml, re_pool, ci_hksj
 BCG = DATASETS["bcg"]
 
 
-def test_tau2_dl_verified():
-    # closed-form DL on MultiverseMA's shipped BCG numbers
-    assert tau2_dl(BCG["yi"], BCG["vi"]) == pytest.approx(0.4047, abs=2e-3)
+def test_tau2_dl_matches_metafor():
+    # metafor published DL tau^2 for dat.bcg
+    assert tau2_dl(BCG["yi"], BCG["vi"]) == pytest.approx(0.3088, abs=2e-3)
 
 
-def test_tau2_reml_dual_method_verified():
-    # fixed-point iteration must match direct REML-likelihood optimisation
+def test_tau2_reml_matches_metafor_and_dual_method():
+    # (a) external reference: metafor published REML tau^2 = 0.3132
     fp = tau2_reml(BCG["yi"], BCG["vi"])
-    assert fp == pytest.approx(0.3936, abs=3e-3)
+    assert fp == pytest.approx(0.3132, abs=3e-3)
+    # (b) fixed-point iteration must also match direct REML-likelihood optimisation
     import numpy as np
     from scipy.optimize import minimize_scalar
     y = np.array(BCG["yi"]); v = np.array(BCG["vi"])
@@ -53,17 +49,16 @@ def test_tau2_reml_dual_method_verified():
     assert fp == pytest.approx(direct, abs=1e-3)
 
 
-def test_tau2_pm_between_dl_and_reml():
+def test_tau2_pm_near_reml():
     pm = tau2_pm(BCG["yi"], BCG["vi"])
-    # PM sits near REML on this data
-    assert 0.35 < pm < 0.45
+    assert 0.27 < pm < 0.38
 
 
-def test_re_pool_bcg_logRR():
+def test_re_pool_bcg_logRR_matches_metafor():
     tau2 = tau2_reml(BCG["yi"], BCG["vi"])
     theta, var, _, _ = re_pool(BCG["yi"], BCG["vi"], tau2)
-    # verified RE pooled log-RR on MV's shipped (non-canonical) BCG data
-    assert theta == pytest.approx(-0.6321, abs=5e-3)
+    # metafor published RE pooled log-RR for dat.bcg
+    assert theta == pytest.approx(-0.7145, abs=5e-3)
 
 
 def test_k1_edge_no_crash():
