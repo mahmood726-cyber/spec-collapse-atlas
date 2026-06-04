@@ -9,7 +9,7 @@ __pycache__/
 PROGRESS.md
 _*.txt
 _*.js
-data/corpus_run.log
+data/*.log
 
 # OS
 .DS_Store
