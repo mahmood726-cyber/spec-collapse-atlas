@@ -24,6 +24,9 @@ from .engine import enumerate_specs
 # Local analysis runner: paths are configurable via env vars (or the corpus_dir
 # argument). The defaults below are this workstation's locations and are NOT
 # shipped into any deployed asset (the dashboard embeds pre-computed results).
+import math
+
+MEANINGFUL_DELTA = math.log(1.1)  # ROPE half-width: a 10% relative effect
 DEFAULT_CORPUS = os.environ.get("SPEC_COLLAPSE_CORPUS", r"C:\Projects\Pairwise70\data")
 FRAGILITY_ATLAS = os.environ.get("FRAGILITY_ATLAS_PATH", r"C:\Projects\fragility-atlas")
 
@@ -75,6 +78,11 @@ def run_corpus(corpus_dir=DEFAULT_CORPUS, limit=None, cl=0.95):
             continue
         w_ivre = ivre["ci_high"] - ivre["ci_low"]
         w_wl = wl["ci_high"] - wl["ci_low"]
+        # effect-magnitude verdict: "meaningful" = CI excludes a +/-delta ROPE
+        # band (delta = log 1.1, a 10% relative effect on the ratio scale).
+        delta = MEANINGFUL_DELTA
+        iv_meaningful = ivre["ci_low"] > delta or ivre["ci_high"] < -delta
+        wl_meaningful = wl["ci_low"] > delta or wl["ci_high"] < -delta
         rows.append({
             "review_id": r.review_id, "k": r.k, "scale": r.scale,
             "cochrane_sig": bool(r.is_significant),
@@ -85,6 +93,7 @@ def run_corpus(corpus_dir=DEFAULT_CORPUS, limit=None, cl=0.95):
             "width_ratio": (w_ivre / w_wl) if w_wl > 0 else float("nan"),
             "false_robust": ivre["verdict"] == "robust" and wl["verdict"] == "fragile",
             "concord_false_robust": con["verdict"] == "robust" and wl["verdict"] == "fragile",
+            "false_meaningful": bool(iv_meaningful and not wl_meaningful),
         })
     return {"rows": rows, "n_reviews": len(rows), "skipped": skipped,
             "errored": errored, "n_files": len(files)}
@@ -137,6 +146,7 @@ def summarize(result):
                        if r["width_ratio"] == r["width_ratio"]])  # drop nan
     false_robust = sum(r["false_robust"] for r in rows)
     concord_fr = sum(r["concord_false_robust"] for r in rows)
+    false_meaningful = sum(r.get("false_meaningful", False) for r in rows)
     ivre_robust = sum(r["ivre_verdict"] == "robust" for r in rows)
     wl_robust = sum(r["wl_verdict"] == "robust" for r in rows)
     return {
@@ -150,4 +160,7 @@ def summarize(result):
         "false_robust_pct": 100.0 * false_robust / n,
         "concord_false_robust_n": concord_fr,
         "concord_false_robust_pct": 100.0 * concord_fr / n,
+        "false_meaningful_n": false_meaningful,
+        "false_meaningful_pct": 100.0 * false_meaningful / n,
+        "meaningful_delta": MEANINGFUL_DELTA,
     }

@@ -128,7 +128,7 @@ def test_trim_and_fill_matches_fragility_atlas():
         from src.corrections import trim_and_fill as fa_tf  # type: ignore
     except Exception:
         pytest.skip("fragility-atlas corrections not importable")
-    for key in ("bcg", "aspirin", "magnesium"):
+    for key in ("bcg", "warfarin", "magnesium"):
         d = DATASETS[key]
         yf, vf = trim_and_fill(d["yi"], d["vi"], tau2_dl)
         mine = re_pool(yf, vf, tau2_dl(yf, vf))[0]

@@ -21,7 +21,7 @@ def real_data_table():
     print("REAL DATA: naive concordance / IV-RE pool  vs  weighted-likelihood")
     print("=" * 78)
     flips = 0
-    for key in ("bcg", "aspirin", "omega3", "magnesium", "corticosteroids"):
+    for key in ("bcg", "warfarin", "statins", "magnesium", "sdd"):
         d = DATASETS[key]
         specs = enumerate_specs(d["yi"], d["vi"])
         con = naive_concordance(specs)

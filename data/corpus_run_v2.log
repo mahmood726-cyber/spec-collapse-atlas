@@ -1,11 +1,12 @@
 Running full Pairwise70 corpus (36-spec grid, t-mixture WL) ...
 
-=== SPEC-COLLAPSE ATLAS: 473 Cochrane reviews (122 skipped, 0 errored) in 189s ===
+=== SPEC-COLLAPSE ATLAS: 473 Cochrane reviews (122 skipped, 0 errored) in 158s ===
 Median width ratio (naive IV-RE / corrected WL): 0.124x  (IQR 0.11-0.14)
 IV-RE pool calls 'robust': 417/473 (88%)
 Corrected (WL) calls 'robust': 157/473 (33%)
 *** FALSE ROBUSTNESS: IV-RE 'robust' but corrected 'fragile' in 260/473 reviews = 55.0% ***
 (concordance-based false robustness: 0.0%)
+Effect-magnitude false robustness (ROPE delta=log 1.1): 201/473 = 42.5%
 Sensitivity of false-robustness to weighting scheme:
     uniform   : 55.0%
     reml_only : 54.1%

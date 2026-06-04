@@ -51,9 +51,10 @@ fix a mild under-coverage the normal mixture showed at high heterogeneity.)
 ## Live dashboard
 
 <https://mahmood726-cyber.github.io/spec-collapse-atlas/> — offline single-file
-HTML, no external dependencies. Pick a built-in dataset to see the naive vs.
-calibrated interval and the verdict flip live; browse the 473-review corpus
-width-ratio distribution.
+HTML, no external dependencies. Pick a built-in dataset (all source-verified to
+`metadat`) to run the full 36-spec t-mixture live and see the naive vs. calibrated
+interval and the verdict flip; browse the 473-review corpus width-ratio
+distribution.
 
 ## Run
 

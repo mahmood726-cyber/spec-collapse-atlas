@@ -10,6 +10,7 @@ PROGRESS.md
 _*.txt
 _*.js
 data/*.log
+ci/metafor_reference.json
 
 # OS
 .DS_Store

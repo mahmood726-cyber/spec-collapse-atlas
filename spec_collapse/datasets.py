@@ -23,24 +23,24 @@ DATASETS = {
                0.223017, 0.003962, 0.056434, 0.073025, 0.012412, 0.532506,
                0.071405],
     },
-    "aspirin": {
-        "name": "Aspirin & Stroke Prevention",
-        # Illustrative compilation (trial labels are real but the per-study
-        # yi/vi are not verified against a single published dataset). Used only
-        # as an interactive demo; the corpus result does not depend on it.
-        "source": "Illustrative compilation (not source-verified)",
-        "measure": "log-OR",
-        "yi": [-0.29, -0.18, -0.34, 0.03, -0.02, -0.19, -0.08, -0.23],
-        "vi": [0.0324, 0.0196, 0.0256, 0.0004, 0.0009, 0.0289, 0.0144, 0.0225],
+    "warfarin": {
+        # Canonical metadat dat.hart1999: warfarin vs control for stroke
+        # prevention in atrial fibrillation, 6 trials, log incidence-rate ratio
+        # from published strokes / person-years.
+        "name": "Warfarin & Stroke Prevention (AF)",
+        "source": "Hart et al. (1999); metadat dat.hart1999",
+        "measure": "log-IRR",
+        "yi": [-0.7842, -0.9359, -1.5793, -0.3887, -1.2019, -1.1409],
+        "vi": [0.1637, 0.1776, 0.4103, 0.2778, 0.1863, 0.07],
     },
-    "omega3": {
-        "name": "Omega-3 & Cardiovascular Mortality",
-        # Illustrative compilation (real trial labels, per-study yi/vi not
-        # source-verified). Interactive demo only.
-        "source": "Illustrative compilation (not source-verified)",
-        "measure": "log-RR",
-        "yi": [-0.20, -0.19, -0.01, -0.02, -0.04, -0.20, 0.01],
-        "vi": [0.0064, 0.0144, 0.0049, 0.0064, 0.0100, 0.0100, 0.0081],
+    "statins": {
+        # Canonical metadat dat.cannon2006: intensive vs moderate statin therapy,
+        # 4 trials, log-OR for coronary death or non-fatal MI.
+        "name": "Intensive vs Moderate Statins (CHD events)",
+        "source": "Cannon et al. (2006); metadat dat.cannon2006",
+        "measure": "log-OR",
+        "yi": [-0.1888, -0.1676, -0.2401, -0.1296],
+        "vi": [0.0137, 0.0101, 0.0058, 0.0051],
     },
     "magnesium": {
         # Canonical metadat dat.egger2001 (16 IV-magnesium-in-AMI trials),
@@ -57,16 +57,18 @@ DATASETS = {
         "vi": [1.5551, 0.1715, 0.6531, 2.0435, 0.2393, 1.1496, 1.425, 2.7599,
                0.2875, 1.2313, 0.6095, 0.3825, 0.3917, 0.0215, 0.3295, 0.001],
     },
-    "corticosteroids": {
-        "name": "Corticosteroids for Preterm Birth",
-        # Illustrative compilation in the spirit of the antenatal-corticosteroids
-        # review (real trial labels); per-study yi/vi not verified against the
-        # published dataset, so not cited as verbatim. Interactive demo only.
-        "source": "Illustrative compilation (not source-verified)",
+    "sdd": {
+        # Canonical metadat dat.damico2009: selective digestive decontamination
+        # (topical + systemic antibiotics) vs control for respiratory tract
+        # infections, 16 trials, log-OR; Jacobs 1992 (zero cell) uses the
+        # Haldane-Anscombe 0.5 correction.
+        "name": "Antibiotics & Respiratory Infections (SDD)",
+        "source": "D'Amico et al. (2009); metadat dat.damico2009",
         "measure": "log-OR",
-        "yi": [-0.80, -0.54, -0.59, -0.13, -0.94, -0.35, -0.48, -0.27, -0.23,
-               -0.31, -0.33, -0.22],
-        "vi": [0.1681, 0.5329, 0.3721, 0.1764, 0.2116, 0.3136, 0.5776, 0.0576,
-               0.0841, 0.1024, 0.0441, 0.0289],
+        "yi": [-2.4313, -3.2291, -1.2738, -0.3765, -1.2182, -0.499, -2.2654,
+               -2.8362, -1.4271, -1.5945, -0.8417, -0.8073, -1.7494, -0.7628,
+               -1.8944, -0.9248],
+        "vi": [0.2855, 1.1038, 0.1239, 0.2525, 0.3633, 0.5142, 2.2677, 0.3175,
+               0.2067, 0.2423, 0.0705, 0.0433, 0.2344, 0.0832, 0.4169, 0.0323],
     },
 }

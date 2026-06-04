@@ -11,6 +11,9 @@
   "false_robust_pct": 54.96828752642706,
   "concord_false_robust_n": 0,
   "concord_false_robust_pct": 0.0,
+  "false_meaningful_n": 201,
+  "false_meaningful_pct": 42.494714587737846,
+  "meaningful_delta": 0.09531017980432493,
   "sensitivity_false_robust_pct": {
     "uniform": 54.96828752642706,
     "reml_only": 54.12262156448203,

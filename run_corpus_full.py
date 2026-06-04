@@ -39,6 +39,8 @@ print(f"Corrected (WL) calls 'robust': {s['wl_robust']}/{s['n_reviews']} "
 print(f"*** FALSE ROBUSTNESS: IV-RE 'robust' but corrected 'fragile' in "
       f"{s['false_robust_n']}/{s['n_reviews']} reviews = {s['false_robust_pct']:.1f}% ***")
 print(f"(concordance-based false robustness: {s['concord_false_robust_pct']:.1f}%)")
+print(f"Effect-magnitude false robustness (ROPE delta=log 1.1): "
+      f"{s['false_meaningful_n']}/{s['n_reviews']} = {s['false_meaningful_pct']:.1f}%")
 print("Sensitivity of false-robustness to weighting scheme:")
 for sc in SCHEMES:
     print(f"    {sc:10s}: {s['sensitivity_false_robust_pct'][sc]:.1f}%")

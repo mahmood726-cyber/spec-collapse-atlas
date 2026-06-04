@@ -100,14 +100,21 @@ the Monte-Carlo coverage harness, and the false-robustness metric and atlas.
 - JS dashboard engine reproduces the Python engine's intervals bit-for-bit.
 - 14 pytest tests.
 
-## 8. Done in v0.2 / still deferred
+## 8. Done in v0.2
 
-Done: publication-bias dimension (trim-and-fill, 36-spec grid); non-uniform
-weighting + sensitivity (52–55% across schemes); t-mixture WL calibration;
-external metafor validation; canonical `dat.bcg` + `dat.egger2001` datasets.
+- Publication-bias dimension (trim-and-fill, 36-spec grid).
+- Non-uniform weighting + sensitivity (52–55% across uniform/REML/HKSJ/AIC).
+- t-mixture WL calibration.
+- External metafor validation (engine == metafor on `dat.bcg`); plus a CI job
+  (`.github/workflows/ci.yml`) that installs R+metafor, computes references from
+  `ci/datasets.json`, and asserts the engine matches on every built-in dataset.
+- All built-in datasets source-verified to metadat: `dat.bcg`, `dat.egger2001`
+  (magnesium), `dat.hart1999` (warfarin), `dat.cannon2006` (statins),
+  `dat.damico2009` (SDD). The earlier illustrative aspirin/omega-3/corticosteroids
+  demos were removed.
+- JS port of trim-and-fill + a Student-t CDF (regularised incomplete beta), so
+  the live dashboard tool runs the same 36-spec t-mixture as the corpus
+  (JS ↔ Python verified bit-for-bit on all datasets).
+- Effect-magnitude verdict (CI vs a ±δ ROPE, δ=log 1.1) as a secondary metric.
 
-Still deferred: live R-metafor validation harness (no Rscript locally); measure
-conversion as a spec dimension; effect-magnitude (not just significance) verdict
-flips; source-verification of the aspirin/omega-3/corticosteroids demo datasets
-(labelled illustrative); JS port of trim-and-fill so the live tool also shows 36
-specs (the corpus uses 36; the live tool shows the core 18).
+Still deferred: measure-conversion as a spec dimension (muddies the estimand).
