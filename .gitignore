@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+*.egg-info/
+
+# Session / local state (may contain local paths)
+PROGRESS.md
+_*.txt
+_*.js
+data/corpus_run.log
+
+# OS
+.DS_Store
+Thumbs.db

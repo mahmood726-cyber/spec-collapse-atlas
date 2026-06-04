@@ -1,0 +1,14 @@
+{
+  "n_reviews": 473,
+  "skipped": 122,
+  "errored": 0,
+  "median_width_ratio": 0.2241011774718844,
+  "p25_width_ratio": 0.20293055385988965,
+  "p75_width_ratio": 0.234148584649786,
+  "ivre_robust": 394,
+  "wl_robust": 201,
+  "false_robust_n": 193,
+  "false_robust_pct": 40.80338266384778,
+  "concord_false_robust_n": 0,
+  "concord_false_robust_pct": 0.0
+}
