@@ -19,29 +19,34 @@ specification.
 
 Across **473 Cochrane intervention meta-analyses** (Pairwise70 corpus, k ≥ 3):
 
+Each review is re-analysed across **36 specifications** (3 τ² estimators × 2 CI
+methods × 3 outlier rules × {raw, trim-and-fill}):
+
 | | Naive IV-RE pool | Weighted-likelihood |
 |---|---|---|
-| Conclusions called "robust" | **83%** (394/473) | **42%** (201/473) |
-| Median interval-width ratio | — | naive is **0.22×** the width |
-| **False robustness** (IV-RE robust → corrected fragile) | **193/473 = 40.8%** | |
+| Conclusions called "robust" | **88%** (417/473) | **33%** (157/473) |
+| Median interval-width ratio | — | naive is **0.124×** the width |
+| **False robustness** (IV-RE robust → corrected fragile) | **260/473 = 55.0%** | |
 
-Monte-Carlo under the null (μ = 0): the naive pool's **Type-I error is 60–74%**
-(nominal 5%) and its coverage 0.27–0.39 (nominal 0.95). The weighted-likelihood
-interval restores coverage to **0.91–0.97**.
+The 55% reversal is stable — **52–55%** across uniform, REML-only, HKSJ-only, and
+AIC weighting schemes. Monte-Carlo under the null (μ = 0): the naive pool's
+**Type-I error is 70–81%** (nominal 5%) and its coverage 0.19–0.30 (nominal 0.95).
+The weighted-likelihood interval holds coverage at **0.94–0.99**.
 
 ## The method
 
 Each specification *s* contributes an approximate likelihood for the pooled
-effect θ: `N(θ̂_s, V_s)`. The weighted-likelihood summary is the **Gaussian
-mixture** `Σ pₛ · N(θ̂_s, V_s)` (uniform weights `pₛ = 1/S`). By the law of total
-variance its variance is
+effect θ: a scaled-t `θ̂_s + √V_s · t_{k−1}`. The weighted-likelihood summary is
+the **mixture** `Σ pₛ · t-density(θ̂_s, V_s, k−1)` (uniform weights `pₛ = 1/S`). By
+the law of total variance its variance is
 
 ```
 Var = mean within-spec variance  +  between-spec variance
 ```
 
 so it can never be narrower than the average single specification — the opposite
-of the IV-RE pool, whose variance shrinks toward `1/Σ(1/Vₛ)`.
+of the IV-RE pool, whose variance shrinks toward `1/Σ(1/Vₛ)`. (The t components
+fix a mild under-coverage the normal mixture showed at high heterogeneity.)
 
 ## Live dashboard
 
@@ -53,9 +58,9 @@ width-ratio distribution.
 ## Run
 
 ```bash
-python -m pytest -q                  # 10 tests (engine + aggregators)
+python -m pytest -q                  # 14 tests (engine + aggregators + trim-and-fill)
 python demo.py                       # 5 real datasets + Monte-Carlo coverage
-python run_corpus_full.py            # full 473-review Pairwise70 atlas
+python run_corpus_full.py            # full 473-review Pairwise70 atlas + sensitivity
 ```
 
 `run_corpus_full.py` reuses the
@@ -67,7 +72,7 @@ this project.
 
 | Path | Purpose |
 |---|---|
-| `spec_collapse/engine.py` | τ² estimators (DL/REML/PM), RE pooling, Wald/HKSJ CIs, 18-spec grid |
+| `spec_collapse/engine.py` | τ² estimators (DL/REML/PM), RE pooling, Wald/HKSJ CIs, trim-and-fill, 36-spec grid |
 | `spec_collapse/aggregators.py` | naive concordance, naive IV-RE pool, weighted-likelihood |
 | `spec_collapse/coverage.py` | Monte-Carlo coverage harness |
 | `spec_collapse/corpus.py` | CDSR-scale runner over Pairwise70 |

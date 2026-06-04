@@ -106,3 +106,50 @@ def test_concordance_counts():
     con = naive_concordance(specs)
     nsig = sum(1 for s in specs if s["significant"])
     assert con["pct_significant"] == pytest.approx(100.0 * nsig / len(specs))
+
+
+def test_pubbias_dimension_expands_grid():
+    # 3 outlier x 3 estimator x 2 pub-bias x 2 CI = 36 for k large enough
+    assert len(enumerate_specs(BCG["yi"], BCG["vi"], pub_bias=True)) == 36
+    assert len(enumerate_specs(BCG["yi"], BCG["vi"], pub_bias=False)) == 18
+
+
+def test_trim_and_fill_matches_fragility_atlas():
+    """Ported L0 trim-and-fill must match the fragility-atlas reference (1e-6)."""
+    import os
+    fa = r"C:\Projects\fragility-atlas"
+    if not os.path.isdir(fa):
+        pytest.skip("fragility-atlas not available")
+    import sys
+    import numpy as np
+    from spec_collapse.engine import trim_and_fill, re_pool, tau2_dl
+    sys.path.insert(0, fa)
+    try:
+        from src.corrections import trim_and_fill as fa_tf  # type: ignore
+    except Exception:
+        pytest.skip("fragility-atlas corrections not importable")
+    for key in ("bcg", "aspirin", "magnesium"):
+        d = DATASETS[key]
+        yf, vf = trim_and_fill(d["yi"], d["vi"], tau2_dl)
+        mine = re_pool(yf, vf, tau2_dl(yf, vf))[0]
+        ref = fa_tf(np.array(d["yi"]), np.array([v ** 0.5 for v in d["vi"]]),
+                    "DL", "Wald").theta
+        assert mine == pytest.approx(ref, abs=1e-6)
+
+
+def test_weighting_schemes_select_correctly():
+    from spec_collapse.aggregators import build_weights
+    specs = enumerate_specs(BCG["yi"], BCG["vi"])
+    assert build_weights(specs, "uniform") is None
+    w_hksj = build_weights(specs, "hksj_only")
+    assert all((w > 0) == (s["ci_method"] == "HKSJ") for w, s in zip(w_hksj, specs))
+    w_reml = build_weights(specs, "reml_only")
+    assert all((w > 0) == (s["estimator"] == "REML") for w, s in zip(w_reml, specs))
+
+
+def test_t_mixture_wider_than_normal_mixture():
+    # the scaled-t mixture is at least as wide as the normal mixture
+    specs = enumerate_specs(BCG["yi"], BCG["vi"])
+    wt = weighted_likelihood(specs, components="t")
+    wn = weighted_likelihood(specs, components="normal")
+    assert (wt["ci_high"] - wt["ci_low"]) >= (wn["ci_high"] - wn["ci_low"]) - 1e-9

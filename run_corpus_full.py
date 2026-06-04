@@ -9,15 +9,18 @@ import time
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from spec_collapse.corpus import run_corpus, summarize
+from spec_collapse.corpus import (run_corpus, run_corpus_sensitivity, summarize,
+                                  SCHEMES)
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 os.makedirs(OUT, exist_ok=True)
 
 t0 = time.time()
-print("Running full Pairwise70 corpus ...", flush=True)
+print("Running full Pairwise70 corpus (36-spec grid, t-mixture WL) ...", flush=True)
 res = run_corpus()
 s = summarize(res)
+sens = run_corpus_sensitivity()
+s["sensitivity_false_robust_pct"] = sens["false_robust_pct"]
 dt = time.time() - t0
 
 with open(os.path.join(OUT, "corpus_results.json"), "w", encoding="utf-8") as f:
@@ -36,3 +39,6 @@ print(f"Corrected (WL) calls 'robust': {s['wl_robust']}/{s['n_reviews']} "
 print(f"*** FALSE ROBUSTNESS: IV-RE 'robust' but corrected 'fragile' in "
       f"{s['false_robust_n']}/{s['n_reviews']} reviews = {s['false_robust_pct']:.1f}% ***")
 print(f"(concordance-based false robustness: {s['concord_false_robust_pct']:.1f}%)")
+print("Sensitivity of false-robustness to weighting scheme:")
+for sc in SCHEMES:
+    print(f"    {sc:10s}: {s['sensitivity_false_robust_pct'][sc]:.1f}%")

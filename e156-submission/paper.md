@@ -4,17 +4,17 @@
 
 ## Body (156-word contract)
 
-When a multiverse meta-analysis is summarised by pooling its specifications, does that summary overstate how robust the underlying conclusion actually is? We analysed 473 Cochrane intervention meta-analyses, each with at least three studies, drawn from the Pairwise70 corpus of binary and continuous outcomes. Every review was re-analysed across eighteen specifications and then summarised two ways: naive inverse-variance pooling versus a coverage-calibrated weighted-likelihood interval. The naive pool called 83 percent of conclusions robust versus 42 percent for the calibrated interval, reversing 193 reviews (40.8 percent) from robust to fragile and compressing intervals to one-fifth their calibrated width. Under simulated null effects, the naive pool's false-positive rate reached 60 to 74 percent, whereas the weighted-likelihood interval held near-nominal 95 percent coverage. Inverse-variance pooling across specifications treats re-analyses of one dataset as independent evidence, manufacturing precision the data do not support. This analysis covers binary significance agreement and one weighting scheme, not effect-magnitude shifts or alternative specification weights.
+When a multiverse meta-analysis is summarised by pooling its specifications, does that summary overstate how robust the underlying conclusion actually is? We analysed 473 Cochrane intervention meta-analyses, each with at least three studies, drawn from the Pairwise70 corpus of binary and continuous outcomes. Every review was re-analysed across thirty-six specifications spanning estimator, interval, outlier, and publication-bias choices, then summarised by naive inverse-variance pooling versus a calibrated weighted-likelihood interval. The naive pool called 88 percent of conclusions robust versus 33 percent for the calibrated interval, reversing 260 reviews (55 percent) from robust to fragile and compressing intervals to one-eighth their calibrated width. This reversal stayed between 52 and 55 percent across four weighting schemes, while under simulated null effects the naive pool's false-positive rate reached 70 to 81 percent. Inverse-variance pooling across specifications treats re-analyses of one dataset as independent evidence, manufacturing precision the data do not support. This analysis covers binary significance agreement, not effect-magnitude shifts.
 
 ## Sentence map
 
 - **S1 — Question:** does pooling specifications overstate robustness?
 - **S2 — Dataset:** 473 Cochrane MAs (k ≥ 3), Pairwise70, binary + continuous.
-- **S3 — Method:** 18 specs each, summarised by naive IV-RE pool vs weighted-likelihood interval.
-- **S4 — Result:** 83% vs 42% robust; 193/473 (40.8%) flip; intervals 1/5 width.
-- **S5 — Robustness:** null Type-I 60–74% (naive) vs ~95% coverage (calibrated).
+- **S3 — Method:** 36 specs (estimator × interval × outlier × publication-bias), naive IV-RE pool vs weighted-likelihood interval.
+- **S4 — Result:** 88% vs 33% robust; 260/473 (55%) flip; intervals 1/8 width.
+- **S5 — Robustness:** 52–55% across 4 weighting schemes; null Type-I 70–81% (naive) vs 0.94–0.99 coverage (calibrated).
 - **S6 — Interpretation:** IV-RE pooling treats one dataset's re-analyses as independent → false precision.
-- **S7 — Boundary:** significance-agreement + one weighting scheme only.
+- **S7 — Boundary:** significance-agreement only.
 
 ## Reproduce
 

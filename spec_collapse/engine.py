@@ -168,35 +168,101 @@ def _outlier_variants(yi, vi):
 
 
 # --------------------------------------------------------------------------
+# publication-bias dimension: Duval-Tweedie trim-and-fill (L0)
+# --------------------------------------------------------------------------
+
+
+def trim_and_fill(y, v, est):
+    """Return (y_filled, v_filled) after Duval-Tweedie L0 trim-and-fill.
+
+    Ported from fragility-atlas/src/corrections.py (R-validated): auto side
+    detection, L0 estimator k0 = round((4*S - k(k+1)) / (2k+1)), reflect the k0
+    most extreme studies about the current pooled estimate, iterate.
+    """
+    import numpy as np
+    k = len(y)
+    if k < 3:
+        return list(y), list(v)
+    yA = np.asarray(y, float)
+    vA = np.asarray(v, float)
+    t2 = est(list(yA), list(vA))
+    theta0 = re_pool(list(yA), list(vA), t2)[0]
+    di = yA - theta0
+    side = "right" if (di > 0).sum() > (di < 0).sum() else "left"
+    yc, vc = yA.copy(), vA.copy()
+    for _ in range(20):
+        t2 = est(list(yc), list(vc))
+        theta0 = re_pool(list(yc), list(vc), t2)[0]
+        di = yA - theta0
+        ranks = np.argsort(np.abs(di))
+        signed = np.zeros(k)
+        for i, r in enumerate(ranks):
+            signed[r] = (i + 1) * np.sign(di[r])
+        S = signed[signed > 0].sum() if side == "right" else np.abs(signed[signed < 0]).sum()
+        k0 = max(0, round((4 * S - k * (k + 1)) / (2 * k + 1)))
+        if k0 == 0:
+            break
+        order = np.argsort(di)
+        idx = order[-k0:] if side == "right" else order[:k0]
+        yf = np.concatenate([yA, 2 * theta0 - yA[idx]])
+        vf = np.concatenate([vA, vA[idx]])
+        if len(yf) == len(yc) and np.allclose(yf, yc, atol=1e-10):
+            break
+        yc, vc = yf, vf
+    return list(yc), list(vc)
+
+
+def _re_loglik(y, v, theta, tau2):
+    """ML log-likelihood of the random-effects model (for AIC weighting)."""
+    return -0.5 * sum(math.log(2 * math.pi * (vi + tau2)) + (yi - theta) ** 2 / (vi + tau2)
+                      for yi, vi in zip(y, v))
+
+
+# --------------------------------------------------------------------------
 # spec enumeration
 # --------------------------------------------------------------------------
 
 
 class Spec(dict):
     """One specification result. Keys: spec_id, estimator, ci_method, outlier,
-    theta, var, ci_low, ci_high, tau2, k, significant."""
+    pub_bias, theta, var, ci_low, ci_high, tau2, k, loglik, significant."""
 
 
-def enumerate_specs(yi, vi, cl=0.95):
-    """Full Cartesian product: outlier x estimator x CI method.
+PUB_BIAS = ("raw", "trim_fill")
 
-    Returns a list of Spec. `significant` = CI excludes 0.
+
+def enumerate_specs(yi, vi, cl=0.95, pub_bias=True):
+    """Cartesian product: outlier x estimator x publication-bias x CI method.
+
+    With pub_bias=True the grid is 3 x 3 x 2 x 2 = up to 36 specs (trim-and-fill
+    variants are skipped where the subset has k<3). Returns a list of Spec;
+    `significant` = CI excludes 0.
     """
     specs = []
     sid = 0
+    pb_opts = PUB_BIAS if pub_bias else ("raw",)
     for olabel, y, v in _outlier_variants(yi, vi):
         for est_name, est in TAU2_ESTIMATORS.items():
-            tau2 = est(y, v)
-            theta, var_wald, _, _ = re_pool(y, v, tau2)
-            for cim in CI_METHODS:
-                if cim == "Wald":
-                    lo, hi, var = ci_wald(theta, var_wald, cl)
+            for pb in pb_opts:
+                if pb == "trim_fill":
+                    if len(y) < 3:
+                        continue
+                    yy, vv = trim_and_fill(y, v, est)
                 else:
-                    lo, hi, var = ci_hksj(y, v, theta, tau2, cl)
-                sid += 1
-                specs.append(Spec(
-                    spec_id=sid, estimator=est_name, ci_method=cim,
-                    outlier=olabel, theta=theta, var=var, ci_low=lo, ci_high=hi,
-                    tau2=tau2, k=len(y), significant=(lo > 0 or hi < 0),
-                ))
+                    yy, vv = y, v
+                tau2 = est(yy, vv)
+                theta, var_wald, _, _ = re_pool(yy, vv, tau2)
+                ll = _re_loglik(yy, vv, theta, tau2)
+                for cim in CI_METHODS:
+                    if cim == "Wald":
+                        lo, hi, var = ci_wald(theta, var_wald, cl)
+                    else:
+                        lo, hi, var = ci_hksj(yy, vv, theta, tau2, cl)
+                    sid += 1
+                    specs.append(Spec(
+                        spec_id=sid, estimator=est_name, ci_method=cim,
+                        outlier=olabel, pub_bias=pb, theta=theta, var=var,
+                        ci_low=lo, ci_high=hi, tau2=tau2, k=len(yy), loglik=ll,
+                        significant=(lo > 0 or hi < 0),
+                    ))
     return specs

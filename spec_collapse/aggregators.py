@@ -19,7 +19,37 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
 from scipy import optimize, stats
+
+
+def build_weights(specs, scheme="uniform"):
+    """Return per-spec weights for a weighting scheme, or None for uniform.
+
+    - "uniform": equal weights (returns None; weighted_likelihood handles it).
+    - "reml_only" / "hksj_only": 0/1 weights restricting to the recommended
+      estimator / the better-calibrated CI method (a defensible spec-subset
+      sensitivity). Falls back to uniform if the restriction empties the set.
+    - "aic": w_i proportional to exp(-0.5 * (AIC_i - min AIC)), AIC_i =
+      -2*loglik_i + 4 (theta, tau^2). HEURISTIC only -- specs span different data
+      subsets (outlier drops, trim-fill), so the likelihoods are not strictly
+      comparable; used as a sensitivity probe, never the primary summary.
+    """
+    if scheme == "uniform":
+        return None
+    if scheme == "reml_only":
+        w = [1.0 if s.get("estimator") == "REML" else 0.0 for s in specs]
+    elif scheme == "hksj_only":
+        w = [1.0 if s.get("ci_method") == "HKSJ" else 0.0 for s in specs]
+    elif scheme == "aic":
+        aics = [-2.0 * s.get("loglik", 0.0) + 4.0 for s in specs]
+        amin = min(aics)
+        w = [math.exp(-0.5 * (a - amin)) for a in aics]
+    else:
+        raise ValueError(f"unknown weighting scheme: {scheme}")
+    if sum(w) <= 0:
+        return None
+    return w
 
 
 def naive_concordance(specs, cl=0.95):
@@ -53,16 +83,27 @@ def naive_ivre_pool(specs, cl=0.95):
     }
 
 
-def _mixture_cdf(x, thetas, sds, p):
-    return sum(pi * stats.norm.cdf((x - t) / sd)
-              for pi, t, sd in zip(p, thetas, sds))
+def _mixture_cdf(x, thetas, sds, dfs, p, use_t):
+    """Vectorised mixture CDF: one scipy call over all components."""
+    z = (x - thetas) / sds
+    c = stats.t.cdf(z, dfs) if use_t else stats.norm.cdf(z)
+    return float(np.dot(p, c))
 
 
-def weighted_likelihood(specs, cl=0.95, weights=None):
-    """Gaussian-mixture (model-averaged) interval via numeric quantile inversion."""
+def weighted_likelihood(specs, cl=0.95, weights=None, components="t"):
+    """Mixture (model-averaged) interval via numeric quantile inversion.
+
+    components="t" (default): each specification contributes a scaled-t density
+    `theta_s + sqrt(V_s) * t_{df_s}` with df_s = k_s - 1, reflecting that the
+    per-spec pivot is t-distributed at small k. This corrects the mild
+    under-coverage the normal-mixture showed at high heterogeneity.
+    components="normal": Gaussian mixture (legacy).
+    """
     thetas = [s["theta"] for s in specs]
     vars = [s["var"] for s in specs]
     sds = [math.sqrt(v) for v in vars]
+    dfs = [max(1, int(s.get("k", 2)) - 1) for s in specs]
+    use_t = components == "t"
     n = len(specs)
     if weights is None:
         p = [1.0 / n] * n
@@ -71,16 +112,24 @@ def weighted_likelihood(specs, cl=0.95, weights=None):
         p = [w / sw for w in weights]
 
     mean = sum(pi * t for pi, t in zip(p, thetas))
-    within = sum(pi * v for pi, v in zip(p, vars))
+    # law of total variance; t-component inflates within-var by df/(df-2) for df>2
+    within = 0.0
+    for pi, v, df in zip(p, vars, dfs):
+        scale = df / (df - 2) if (use_t and df > 2) else 1.0
+        within += pi * v * scale
     between = sum(pi * (t - mean) ** 2 for pi, t in zip(p, thetas))
-    total_var = within + between  # law of total variance
+    total_var = within + between
 
     alpha = (1 - cl) / 2
-    lo_t = min(t - 6 * sd for t, sd in zip(thetas, sds))
-    hi_t = max(t + 6 * sd for t, sd in zip(thetas, sds))
-    lo = optimize.brentq(lambda x: _mixture_cdf(x, thetas, sds, p) - alpha,
+    spread = [sd * (stats.t.ppf(0.999, df) if use_t else 3.1) for sd, df in zip(sds, dfs)]
+    lo_t = min(t - 2 * s for t, s in zip(thetas, spread))
+    hi_t = max(t + 2 * s for t, s in zip(thetas, spread))
+    # numpy arrays for the vectorised mixture-CDF inversion
+    aT, aS, aD, aP = (np.asarray(thetas), np.asarray(sds),
+                      np.asarray(dfs, float), np.asarray(p))
+    lo = optimize.brentq(lambda x: _mixture_cdf(x, aT, aS, aD, aP, use_t) - alpha,
                          lo_t, hi_t, xtol=1e-8)
-    hi = optimize.brentq(lambda x: _mixture_cdf(x, thetas, sds, p) - (1 - alpha),
+    hi = optimize.brentq(lambda x: _mixture_cdf(x, aT, aS, aD, aP, use_t) - (1 - alpha),
                          lo_t, hi_t, xtol=1e-8)
     return {
         "method": "weighted_likelihood",

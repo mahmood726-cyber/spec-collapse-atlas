@@ -17,7 +17,8 @@ import glob
 import os
 import sys
 
-from .aggregators import naive_concordance, naive_ivre_pool, weighted_likelihood
+from .aggregators import (build_weights, naive_concordance, naive_ivre_pool,
+                          weighted_likelihood)
 from .engine import enumerate_specs
 
 # Local analysis runner: paths are configurable via env vars (or the corpus_dir
@@ -87,6 +88,43 @@ def run_corpus(corpus_dir=DEFAULT_CORPUS, limit=None, cl=0.95):
         })
     return {"rows": rows, "n_reviews": len(rows), "skipped": skipped,
             "errored": errored, "n_files": len(files)}
+
+
+SCHEMES = ("uniform", "reml_only", "hksj_only", "aic")
+
+
+def run_corpus_sensitivity(corpus_dir=DEFAULT_CORPUS, limit=None, cl=0.95,
+                           schemes=SCHEMES):
+    """False-robustness rate (IV-RE robust -> corrected fragile) under each
+    weighting scheme. Enumerates each review once; aggregates several ways."""
+    load_review = _get_loader()
+    files = sorted(glob.glob(os.path.join(corpus_dir, "CD*.rda")))
+    if limit:
+        files = files[:limit]
+    counts = {s: 0 for s in schemes}
+    n = 0
+    for f in files:
+        try:
+            r = load_review(f)
+        except Exception:
+            continue
+        if r is None or r.k < 3:
+            continue
+        yi = list(r.yi)
+        vi = [float(s) ** 2 for s in r.sei]
+        try:
+            specs = enumerate_specs(yi, vi, cl=cl)
+            ivre = naive_ivre_pool(specs, cl=cl)
+            n += 1
+            for s in schemes:
+                wl = weighted_likelihood(specs, cl=cl, weights=build_weights(specs, s))
+                if ivre["verdict"] == "robust" and wl["verdict"] == "fragile":
+                    counts[s] += 1
+        except Exception:
+            continue
+    return {"n_reviews": n,
+            "false_robust_pct": {s: 100.0 * counts[s] / n if n else 0.0 for s in schemes},
+            "false_robust_n": counts}
 
 
 def summarize(result):
