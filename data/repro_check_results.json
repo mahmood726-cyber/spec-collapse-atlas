@@ -1,0 +1,51 @@
+{
+  "corpus": {
+    "n_reviews": 473,
+    "skipped": 122,
+    "errored": 0,
+    "ivre_robust": 417,
+    "ivre_robust_pct": 88.16067653276956,
+    "wl_robust": 157,
+    "wl_robust_pct": 33.192389006342495,
+    "false_robust_n": 260,
+    "false_robust_pct": 54.96828752642706,
+    "median_width_ratio": 0.12400268624094463
+  },
+  "null": [
+    {
+      "k": 10,
+      "tau2_true": 0.0,
+      "type1_naive_ivre": 0.724,
+      "coverage_naive_ivre": 0.276,
+      "coverage_wl": 0.98
+    },
+    {
+      "k": 10,
+      "tau2_true": 0.05,
+      "type1_naive_ivre": 0.795,
+      "coverage_naive_ivre": 0.205,
+      "coverage_wl": 0.938
+    },
+    {
+      "k": 10,
+      "tau2_true": 0.1,
+      "type1_naive_ivre": 0.795,
+      "coverage_naive_ivre": 0.205,
+      "coverage_wl": 0.919
+    },
+    {
+      "k": 20,
+      "tau2_true": 0.05,
+      "type1_naive_ivre": 0.778,
+      "coverage_naive_ivre": 0.222,
+      "coverage_wl": 0.94
+    },
+    {
+      "k": 5,
+      "tau2_true": 0.05,
+      "type1_naive_ivre": 0.812,
+      "coverage_naive_ivre": 0.188,
+      "coverage_wl": 0.99
+    }
+  ]
+}
