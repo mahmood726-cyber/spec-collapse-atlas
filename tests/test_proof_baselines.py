@@ -303,6 +303,9 @@ def test_run_coverage_baseline():
     assert r["mean_width_naive_ivre"] < r["mean_width_weighted_likelihood"]
 
     # Determinism under the pinned seed (exact reproduction).
-    assert abs(r["coverage_naive_ivre"] - 0.16833333333333333) < 1e-9
-    assert abs(r["coverage_weighted_likelihood"] - 0.9533333333333334) < 1e-9
-    assert abs(r["type1_naive_ivre"] - 0.8316666666666667) < 1e-9
+    # Updated 2026-07-10 after the trim-and-fill L0 denominator fix (2k+1 -> 2k-1),
+    # which flows through the 36-spec WL aggregation. All three stay within the
+    # sanity bounds asserted above; only the exact pinned values shifted.
+    assert abs(r["coverage_naive_ivre"] - 0.18) < 1e-9
+    assert abs(r["coverage_weighted_likelihood"] - 0.9516666666666667) < 1e-9
+    assert abs(r["type1_naive_ivre"] - 0.82) < 1e-9

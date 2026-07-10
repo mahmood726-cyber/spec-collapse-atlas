@@ -24,9 +24,9 @@ methods × 3 outlier rules × {raw, trim-and-fill}):
 
 | | Naive IV-RE pool | Weighted-likelihood |
 |---|---|---|
-| Conclusions called "robust" | **88%** (417/473) | **33%** (157/473) |
+| Conclusions called "robust" | **88%** (417/473) | **33%** (158/473) |
 | Median interval-width ratio | — | naive is **0.124×** the width |
-| **False robustness** (IV-RE robust → corrected fragile) | **260/473 = 55.0%** | |
+| **False robustness** (IV-RE robust → corrected fragile) | **259/473 = 54.8%** | |
 
 The 55% reversal is stable — **52–55%** across uniform, REML-only, HKSJ-only, and
 AIC weighting schemes. Monte-Carlo under the null (μ = 0): the naive pool's

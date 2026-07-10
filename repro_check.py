@@ -176,7 +176,7 @@ def trim_and_fill(y, v, est):
         for i, r in enumerate(ranks):
             signed[r] = (i + 1) * np.sign(di[r])
         S = signed[signed > 0].sum() if side == "right" else np.abs(signed[signed < 0]).sum()
-        k0 = max(0, round((4 * S - k * (k + 1)) / (2 * k + 1)))
+        k0 = max(0, round((4 * S - k * (k + 1)) / (2 * k - 1)))  # (2k-1): Duval-Tweedie/metafor
         if k0 == 0:
             break
         order = np.argsort(di)

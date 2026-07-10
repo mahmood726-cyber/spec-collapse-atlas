@@ -137,6 +137,22 @@ def test_trim_and_fill_matches_fragility_atlas():
         assert mine == pytest.approx(ref, abs=1e-6)
 
 
+def test_trim_and_fill_l0_denominator_is_2k_minus_1():
+    """Self-contained anchor for the Duval-Tweedie/metafor L0 denominator (2k-1).
+
+    Breaks the circular 'matches fragility-atlas' check above: on this fixed
+    input (k=6, S=12) the correct (2k-1)=11 denominator gives k0=round(6/11)=1
+    -> exactly one study imputed (len grows by 1). The old (2k+1)=13 bug gives
+    k0=round(6/13)=0 -> no fill. This assertion holds regardless of any external
+    reference implementation.
+    """
+    from spec_collapse.engine import trim_and_fill, tau2_dl
+    yi = [-1.125, 0.193, -0.291, 0.055, -0.038, 0.101]
+    vi = [s ** 2 for s in (0.472, 0.126, 0.437, 0.127, 0.238, 0.272)]
+    yf, vf = trim_and_fill(yi, vi, tau2_dl)
+    assert len(yf) == len(yi) + 1  # k0 == 1 under (2k-1); would be 0 under (2k+1)
+
+
 def test_weighting_schemes_select_correctly():
     from spec_collapse.aggregators import build_weights
     specs = enumerate_specs(BCG["yi"], BCG["vi"])

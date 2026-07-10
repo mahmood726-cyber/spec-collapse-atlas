@@ -176,8 +176,13 @@ def trim_and_fill(y, v, est):
     """Return (y_filled, v_filled) after Duval-Tweedie L0 trim-and-fill.
 
     Ported from fragility-atlas/src/corrections.py (R-validated): auto side
-    detection, L0 estimator k0 = round((4*S - k(k+1)) / (2k+1)), reflect the k0
+    detection, L0 estimator k0 = round((4*S - k(k+1)) / (2k-1)), reflect the k0
     most extreme studies about the current pooled estimate, iterate.
+
+    NOTE: denominator is (2k-1) per Duval & Tweedie (2000) / metafor::trimfill.
+    A prior version used (2k+1), which systematically under-imputed k0; that bug
+    was mirrored in the fragility-atlas reference this was ported from (both fixed
+    2026-07-10). See tests for the metafor-anchored k0 check.
     """
     import numpy as np
     k = len(y)
@@ -199,7 +204,7 @@ def trim_and_fill(y, v, est):
         for i, r in enumerate(ranks):
             signed[r] = (i + 1) * np.sign(di[r])
         S = signed[signed > 0].sum() if side == "right" else np.abs(signed[signed < 0]).sum()
-        k0 = max(0, round((4 * S - k * (k + 1)) / (2 * k + 1)))
+        k0 = max(0, round((4 * S - k * (k + 1)) / (2 * k - 1)))
         if k0 == 0:
             break
         order = np.argsort(di)

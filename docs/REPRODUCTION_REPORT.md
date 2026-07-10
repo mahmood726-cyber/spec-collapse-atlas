@@ -70,6 +70,15 @@ The raw counts (417, 157, 260) are **bit-identical** to the authors'
 integers, which is strong evidence the result is a property of the method+data,
 not of a particular coding of it.
 
+> **Correction (2026-07-10):** the trim-and-fill L0 estimator denominator was
+> fixed from `(2k+1)` to `(2k-1)` (Duval & Tweedie 2000 / `metafor::trimfill`;
+> the earlier value was mirrored from a since-corrected fragility-atlas port).
+> Re-running the corpus shifts the counts to **417 / 158 / 259** (false
+> robustness **54.8%**, WL-robust 33.4%) — a one-review change that leaves the
+> headline within its stated 52–55% stability band. The v0.2.0 figures above are
+> retained as the historical record; current authoritative numbers live in
+> `data/corpus_summary.json`.
+
 ### 4b. Null Monte-Carlo — Type-I error of the naive rule (1000 reps each, seed 20260604)
 
 | Scenario | Naive IV-RE Type-I | IV-RE coverage | WL coverage |

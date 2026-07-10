@@ -2,22 +2,22 @@
   "n_reviews": 473,
   "skipped": 122,
   "errored": 0,
-  "median_width_ratio": 0.12400268624112834,
-  "p25_width_ratio": 0.10655031135941376,
-  "p75_width_ratio": 0.13812619335465495,
+  "median_width_ratio": 0.12399117821865416,
+  "p25_width_ratio": 0.1068985611868601,
+  "p75_width_ratio": 0.13721146526931302,
   "ivre_robust": 417,
-  "wl_robust": 157,
-  "false_robust_n": 260,
-  "false_robust_pct": 54.96828752642706,
+  "wl_robust": 158,
+  "false_robust_n": 259,
+  "false_robust_pct": 54.756871035940804,
   "concord_false_robust_n": 0,
   "concord_false_robust_pct": 0.0,
-  "false_meaningful_n": 201,
-  "false_meaningful_pct": 42.494714587737846,
+  "false_meaningful_n": 199,
+  "false_meaningful_pct": 42.07188160676533,
   "meaningful_delta": 0.09531017980432493,
   "sensitivity_false_robust_pct": {
-    "uniform": 54.96828752642706,
-    "reml_only": 54.12262156448203,
+    "uniform": 54.756871035940804,
+    "reml_only": 54.54545454545455,
     "hksj_only": 55.39112050739958,
-    "aic": 52.00845665961945
+    "aic": 51.79704016913319
   }
 }
